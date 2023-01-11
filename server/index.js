@@ -1,4 +1,3 @@
-import bodyParser from 'body-parser';
 import express from 'express';
 import cors from 'cors';
 import mongoose from "mongoose";
@@ -13,6 +12,10 @@ import userRoutes from './routes/user.js';
 import postRoutes from './routes/post.js';
 import { register } from './controllers/auth.js';
 import { verifyToken } from './middleware/auth.js';
+import { createPost } from './controllers/post.js';
+import User from "./models/User.js";
+import Post from "./models/Post.js";
+import { users, posts } from "./data/index.js";
 
 
 // Configuration
@@ -46,6 +49,7 @@ const upload = multer({ storage });
 
 // Routes with Files
 app.post("/api/v1/auth/register", upload.single("picture"), register);
+app.post("/api/v1/post", verifyToken, upload.single("picture"), createPost);
 
 
 // Routes
@@ -58,6 +62,10 @@ app.use("/api/v1/post", postRoutes);
 mongoose.set('strictQuery', true);
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
-    app.listen(5000, () => console.log("Server listening on port 5000!"))
+    app.listen(5000, () => console.log("Server listening on port 5000!"));
+
+    /* ADD DATA ONE TIME */
+    // User.insertMany(users);
+    // Post.insertMany(posts);
   })
   .catch(e => console.log(e))
